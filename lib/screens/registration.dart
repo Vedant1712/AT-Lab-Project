@@ -4,7 +4,9 @@ import '../constants.dart';
 import 'buttons.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 
+final _firestore = FirebaseFirestore.instance;
 
 class RegistrationScreen extends StatefulWidget {
 
@@ -21,12 +23,16 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
       try {
         await _auth.createUserWithEmailAndPassword(email: email, password: password).then((value) => {
           Fluttertoast.showToast(msg: "Registration Successful"),
+          _firestore.collection('userData').doc(_auth.currentUser!.uid).set({'fullname': fname.text, 'email': emailController.text, 'height': heightController.text, 'weight': weightController.text, 'age': ageController.text, 'bloodGrp': bloodgrpController.text}),
           Navigator.pushNamed(context, WelcomeScreen.id),
           fname.clear(),
-          lname.clear(),
           emailController.clear(),
           passwordController.clear(),
           confirmPasswordController.clear(),
+          heightController.clear(),
+          weightController.clear(),
+          ageController.clear(),
+          bloodgrpController.clear(),
           emailController.selection = TextSelection.fromPosition(TextPosition(offset: emailController.text.length))
         });
       } on FirebaseAuthException catch (error) {
@@ -60,10 +66,13 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
 
   final _formKey = GlobalKey<FormState>();
   final TextEditingController fname = TextEditingController();
-  final TextEditingController lname = TextEditingController();
   final TextEditingController emailController = TextEditingController();
   final TextEditingController passwordController = TextEditingController();
   final TextEditingController confirmPasswordController = TextEditingController();
+  final TextEditingController heightController = TextEditingController();
+  final TextEditingController weightController = TextEditingController();
+  final TextEditingController ageController = TextEditingController();
+  final TextEditingController bloodgrpController = TextEditingController();
 
   final _auth = FirebaseAuth.instance;
   String? errorMssg;
@@ -71,7 +80,6 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
   @override
   void dispose() {
     fname.dispose();
-    lname.dispose();
     emailController.dispose();
     passwordController.dispose();
     confirmPasswordController.dispose();
@@ -81,11 +89,17 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      appBar: AppBar(
+        title: Text(
+          'Registation Screen',
+        ),
+        backgroundColor: Color(0xff846db6),
+      ),
         body: Center(
           child: SingleChildScrollView(
             child: Container(
               child: Padding(
-                padding: EdgeInsets.symmetric(vertical: 0.0, horizontal: 20.0),
+                padding: EdgeInsets.symmetric(vertical: 20.0, horizontal: 20.0),
                 child: Form(
                   key: _formKey,
                   child: Column(
@@ -105,7 +119,7 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
                           style: TextStyle(color: Color(0xff846db6)),
                           validator: (value) {
                             if(value == null || value.isEmpty) {
-                              return "First name cannot be empty";
+                              return "Name cannot be empty";
                             }
                           },
                           onSaved: (value) {
@@ -115,40 +129,7 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
                           autofocus: false,
                           controller: fname,
                           decoration: kRegTextFormFieldDecoration.copyWith(
-                            hintText: "First Name",
-                            hintStyle: TextStyle(
-                                color: Colors.grey.shade400
-                            ),
-                            prefixIcon: Icon(Icons.account_circle_sharp, color: Color(0xff846db6)),
-                            enabledBorder: OutlineInputBorder(
-                                borderSide: BorderSide(color: Color(0xff846db6))
-                            ),
-                            focusedBorder: OutlineInputBorder(
-                                borderSide: BorderSide(color: Color(0xff846db6), width: 2.0),
-                                borderRadius: BorderRadius.all(Radius.circular(15.0))
-                            ),
-                          )
-                      ),
-                      SizedBox(
-                        height: 20.0,
-                      ),
-                      TextFormField(
-                          textInputAction: TextInputAction.next,
-                          cursorColor: Color(0xff846db6),
-                          style: TextStyle(color: Color(0xff846db6)),
-                          validator: (value) {
-                            if(value == null || value.isEmpty) {
-                              return "Last name cannot be empty";
-                            }
-                          },
-                          onSaved: (value) {
-                            lname.text = value!;
-                          },
-
-                          autofocus: false,
-                          controller: lname,
-                          decoration: kRegTextFormFieldDecoration.copyWith(
-                            hintText: "Last Name",
+                            hintText: "Full Name",
                             hintStyle: TextStyle(
                                 color: Colors.grey.shade400
                             ),
@@ -241,7 +222,7 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
                         height: 20.0,
                       ),
                       TextFormField(
-                          textInputAction: TextInputAction.done,
+                          textInputAction: TextInputAction.next,
                           cursorColor: Color(0xff846db6),
                           style: TextStyle(color: Color(0xff846db6)),
                           validator: (value) {
@@ -272,7 +253,142 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
                           )
                       ),
                       SizedBox(
-                        height: 50.0,
+                        height: 20.0,
+                      ),
+                      TextFormField(
+                          textInputAction: TextInputAction.next,
+                          keyboardType: TextInputType.number,
+                          cursorColor: Color(0xff846db6),
+                          style: TextStyle(color: Color(0xff846db6)),
+                          validator: (value) {
+                            if(value == null || value.isEmpty) {
+                              return "This field cannot be empty";
+                            }
+                          },
+                          onSaved: (value) {
+                            heightController.text = value!;
+                          },
+
+                          autofocus: false,
+                          controller: heightController,
+                          decoration: kRegTextFormFieldDecoration.copyWith(
+                            hintText: "Enter height in cm",
+                            hintStyle: TextStyle(
+                                color: Colors.grey.shade400
+                            ),
+                            prefixIcon: Icon(Icons.height, color: Color(0xff846db6)),
+                            enabledBorder: OutlineInputBorder(
+                                borderSide: BorderSide(color: Color(0xff846db6))
+                            ),
+                            focusedBorder: OutlineInputBorder(
+                                borderSide: BorderSide(color: Color(0xff846db6), width: 2.0),
+                                borderRadius: BorderRadius.all(Radius.circular(15.0))
+                            ),
+                          )
+                      ),
+                      SizedBox(
+                        height: 20.0,
+                      ),
+                      TextFormField(
+                          textInputAction: TextInputAction.next,
+                          keyboardType: TextInputType.number,
+                          cursorColor: Color(0xff846db6),
+                          style: TextStyle(color: Color(0xff846db6)),
+                          validator: (value) {
+                            if(value == null || value.isEmpty) {
+                              return "This field cannot be empty";
+                            }
+                          },
+                          onSaved: (value) {
+                            weightController.text = value!;
+                          },
+
+                          autofocus: false,
+                          controller: weightController,
+                          decoration: kRegTextFormFieldDecoration.copyWith(
+                            hintText: "Enter weight in kg",
+                            hintStyle: TextStyle(
+                                color: Colors.grey.shade400
+                            ),
+                            prefixIcon: Icon(Icons.monitor_weight, color: Color(0xff846db6)),
+                            enabledBorder: OutlineInputBorder(
+                                borderSide: BorderSide(color: Color(0xff846db6))
+                            ),
+                            focusedBorder: OutlineInputBorder(
+                                borderSide: BorderSide(color: Color(0xff846db6), width: 2.0),
+                                borderRadius: BorderRadius.all(Radius.circular(15.0))
+                            ),
+                          )
+                      ),
+                      SizedBox(
+                        height: 20.0,
+                      ),
+                      TextFormField(
+                          textInputAction: TextInputAction.next,
+                          keyboardType: TextInputType.number,
+                          cursorColor: Color(0xff846db6),
+                          style: TextStyle(color: Color(0xff846db6)),
+                          validator: (value) {
+                            if(value == null || value.isEmpty) {
+                              return "This field cannot be empty";
+                            }
+                          },
+                          onSaved: (value) {
+                            ageController.text = value!;
+                          },
+
+                          autofocus: false,
+                          controller: ageController,
+                          decoration: kRegTextFormFieldDecoration.copyWith(
+                            hintText: "Enter Your Age",
+                            hintStyle: TextStyle(
+                                color: Colors.grey.shade400
+                            ),
+                            prefixIcon: Icon(Icons.calendar_today, color: Color(0xff846db6)),
+                            enabledBorder: OutlineInputBorder(
+                                borderSide: BorderSide(color: Color(0xff846db6))
+                            ),
+                            focusedBorder: OutlineInputBorder(
+                                borderSide: BorderSide(color: Color(0xff846db6), width: 2.0),
+                                borderRadius: BorderRadius.all(Radius.circular(15.0))
+                            ),
+                          )
+                      ),
+                      SizedBox(
+                        height: 20.0,
+                      ),
+                      TextFormField(
+                          textInputAction: TextInputAction.next,
+                          cursorColor: Color(0xff846db6),
+                          style: TextStyle(color: Color(0xff846db6)),
+                          validator: (value) {
+                            if(value == null || value.isEmpty) {
+                              return "This field cannot be empty";
+                            }
+                          },
+                          onSaved: (value) {
+                            bloodgrpController.text = value!;
+                          },
+
+                          autofocus: false,
+                          controller: bloodgrpController,
+                          decoration: kRegTextFormFieldDecoration.copyWith(
+                            hintText: "Enter Your Blood Group",
+                            hintStyle: TextStyle(
+                                color: Colors.grey.shade400
+                            ),
+                            prefixIcon: Icon(Icons.bloodtype_rounded, color: Color(0xff846db6)),
+                            enabledBorder: OutlineInputBorder(
+                                borderSide: BorderSide(color: Color(0xff846db6))
+                            ),
+                            focusedBorder: OutlineInputBorder(
+                                borderSide: BorderSide(color: Color(0xff846db6), width: 2.0),
+                                borderRadius: BorderRadius.all(Radius.circular(15.0))
+                            ),
+                          )
+                      ),
+                      SizedBox(
+                        height: 40.0,
                       ),
                       Buttons(
                         text: 'Register',

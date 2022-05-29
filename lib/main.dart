@@ -1,7 +1,11 @@
+import 'package:findyourcure/screens/covid19.dart';
+import 'package:findyourcure/screens/disease.dart';
 import 'package:findyourcure/screens/home.dart';
 import 'package:findyourcure/screens/login.dart';
 import 'package:findyourcure/screens/profile.dart';
+import 'package:findyourcure/screens/records.dart';
 import 'package:findyourcure/screens/registration.dart';
+import 'package:findyourcure/screens/symptoms.dart';
 import 'package:findyourcure/screens/welcome.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
@@ -27,7 +31,11 @@ class MyApp extends StatelessWidget {
         RegistrationScreen.id: (context) => RegistrationScreen(),
         LoginScreen.id: (context) => LoginScreen(),
         HomeScreen.id: (context) => HomeScreen(),
-        ProfilePage.id: (context) => ProfilePage()
+        ProfilePage.id: (context) => ProfilePage(),
+        Symptoms.id: (context) => Symptoms(),
+        Disease.id: (context) => Disease(),
+        Records.id: (context) => Records(),
+        CovidScreen.id: (context) => CovidScreen()
       },
     );
   }
